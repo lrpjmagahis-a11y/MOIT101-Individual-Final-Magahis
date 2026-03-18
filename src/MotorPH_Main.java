@@ -1,26 +1,59 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.Scanner;
 
 public class MotorPH_Main {
     public static void main(String[] args) {
-        // 1. Setup Sample Data (We will automate this with CSV later!)
-        String name = "Juan Magahis";
-        double hourlyRate = 535.00;
-        String timeIn = "08:00";
-        String timeOut = "17:05";
-
-        System.out.println("=== MotorPH Payroll System: Solo Edition ===");
+        String employeeFile = "EmployeeDetails.csv";
+        String attendanceFile = "AttendanceRecords.csv";
         
-        // 2. CALLING THE SPECIALIST (PayrollEngine)
-        // This is where the magic happens! We send the times to the other file.
-        double hoursWorked = PayrollEngine.calculateHours(timeIn, timeOut);
-        
-        // 3. CALLING THE MATH SPECIALIST AGAIN
-        double grossPay = PayrollEngine.calculateGrossPay(hoursWorked, hourlyRate);
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter Employee ID to calculate payroll: ");
+        String searchID = sc.nextLine();
 
-        // 4. DISPLAY THE RESULT
-        System.out.println("Employee: " + name);
-        System.out.println("Hours Worked (minus 1hr lunch): " + String.format("%.2f", hoursWorked));
-        System.out.println("Gross Salary: PHP " + String.format("%.2f", grossPay));
-        System.out.println("==============================================");
+        try {
+            // 1. FIND THE EMPLOYEE'S RATE
+            double hourlyRate = 0;
+            String empName = "";
+            BufferedReader brEmp = new BufferedReader(new FileReader(employeeFile));
+            String line;
+            brEmp.readLine(); // Skip the header (ID, LastName, etc.)
+            
+            while ((line = brEmp.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data[0].equals(searchID)) {
+                    empName = data[2] + " " + data[1]; // FirstName + LastName
+                    hourlyRate = Double.parseDouble(data[4]);
+                    break;
+                }
+            }
+            brEmp.close();
+
+            // 2. FIND ATTENDANCE AND CALCULATE
+            BufferedReader brAtt = new BufferedReader(new FileReader(attendanceFile));
+            brAtt.readLine(); // Skip header
+            
+            System.out.println("\n--- Payroll Result ---");
+            while ((line = brAtt.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data[0].equals(searchID)) {
+                    String timeIn = data[2];
+                    String timeOut = data[3];
+                    
+                    // CALLING YOUR SPECIALIST (PayrollEngine)
+                    double hours = PayrollEngine.calculateHours(timeIn, timeOut);
+                    double gross = PayrollEngine.calculateGrossPay(hours, hourlyRate);
+                    
+                    System.out.println("Employee: " + empName);
+                    System.out.println("Date: " + data[1]);
+                    System.out.println("Hours Worked: " + String.format("%.2f", hours));
+                    System.out.println("Gross Pay: PHP " + String.format("%.2f", gross));
+                }
+            }
+            brAtt.close();
+
+        } catch (Exception e) {
+            System.out.println("Error reading files: " + e.getMessage());
+        }
     }
 }
