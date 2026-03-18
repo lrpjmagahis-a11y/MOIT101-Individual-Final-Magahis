@@ -2,25 +2,25 @@ import java.util.Scanner;
 
 public class MotorPH_Main {
     public static void main(String[] args) {
-        // Sample Admin Credentials
-        String adminUser = "admin_magahis";
-        String adminPass = "p@ssword123";
+        // 1. Setup Sample Data (We will automate this with CSV later!)
+        String name = "Juan Magahis";
+        double hourlyRate = 535.00;
+        String timeIn = "08:00";
+        String timeOut = "17:05";
 
-        System.out.println("========================================");
-        System.out.println("     MOTORPH PAYROLL SYSTEM (SOLO)      ");
-        System.out.println("========================================");
+        System.out.println("=== MotorPH Payroll System: Solo Edition ===");
         
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Username: ");
-        String inputUser = sc.nextLine();
-        System.out.print("Password: ");
-        String inputPass = sc.nextLine();
+        // 2. CALLING THE SPECIALIST (PayrollEngine)
+        // This is where the magic happens! We send the times to the other file.
+        double hoursWorked = PayrollEngine.calculateHours(timeIn, timeOut);
+        
+        // 3. CALLING THE MATH SPECIALIST AGAIN
+        double grossPay = PayrollEngine.calculateGrossPay(hoursWorked, hourlyRate);
 
-        if(inputUser.equals(adminUser) && inputPass.equals(adminPass)) {
-            System.out.println("\nLogin Successful! Loading 25 Employee Records...");
-            // Next step: Code for CSV loading
-        } else {
-            System.out.println("Access Denied.");
-        }
+        // 4. DISPLAY THE RESULT
+        System.out.println("Employee: " + name);
+        System.out.println("Hours Worked (minus 1hr lunch): " + String.format("%.2f", hoursWorked));
+        System.out.println("Gross Salary: PHP " + String.format("%.2f", grossPay));
+        System.out.println("==============================================");
     }
 }
